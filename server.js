@@ -6,16 +6,14 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const port = 3000;  // Change to another port
-const PORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 3000; // Use the port assigned by Vercel
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
 // MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI; // Ensure MONGO_URI is set in your .env file
+const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -34,8 +32,6 @@ const keywordSchema = new mongoose.Schema({
 const Keyword = mongoose.model("Keyword", keywordSchema);
 
 // Routes
-
-// Get all keywords
 app.get("/keywords", async (req, res) => {
   try {
     const keywords = await Keyword.find();
@@ -45,7 +41,6 @@ app.get("/keywords", async (req, res) => {
   }
 });
 
-// Add a new keyword
 app.post("/keywords", async (req, res) => {
   const { text } = req.body;
 
@@ -54,7 +49,6 @@ app.post("/keywords", async (req, res) => {
   }
 
   try {
-    // Check if the keyword already exists
     const existingKeyword = await Keyword.findOne({ text });
     if (existingKeyword) {
       return res.status(400).send("Keyword already exists.");
@@ -68,7 +62,6 @@ app.post("/keywords", async (req, res) => {
   }
 });
 
-// Delete a keyword
 app.delete("/keywords/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -82,5 +75,6 @@ app.delete("/keywords/:id", async (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
+
