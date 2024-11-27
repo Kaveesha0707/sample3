@@ -1,4 +1,4 @@
-const API_URL = "https://sample3-six.vercel.app/";
+const API_URL = "https://sample3-six.vercel.app/keywords"; // Updated API base URL
 
 const keywordForm = document.getElementById("keywordForm");
 const keywordInput = document.getElementById("keywordInput");
@@ -15,12 +15,13 @@ themeToggle.addEventListener("click", () => {
 async function fetchKeywords() {
   try {
     const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Failed to fetch keywords");
     const keywords = await response.json();
 
     keywordList.innerHTML = "";
     keywords.forEach((keyword) => {
       const li = document.createElement("li");
-      li.innerHTML = `${keyword.text}&nbsp;&nbsp;&nbsp;&nbsp;${keyword.alertCount}`; // Adds 4 non-breaking spaces
+      li.innerHTML = `${keyword.text}&nbsp;&nbsp;&nbsp;&nbsp;${keyword.alertCount}`;
 
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "DELETE";
@@ -32,6 +33,7 @@ async function fetchKeywords() {
     });
   } catch (err) {
     console.error("Error fetching keywords:", err);
+    alert("Failed to load keywords. Please try again.");
   }
 }
 
@@ -63,6 +65,7 @@ async function addKeyword(event) {
     }
   } catch (err) {
     console.error("Error adding keyword:", err);
+    alert("Failed to add keyword. Please try again.");
   } finally {
     submitButton.disabled = false;
   }
@@ -71,10 +74,12 @@ async function addKeyword(event) {
 // Delete a keyword
 async function deleteKeyword(id) {
   try {
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error("Failed to delete keyword");
     fetchKeywords();
   } catch (err) {
     console.error("Error deleting keyword:", err);
+    alert("Failed to delete keyword. Please try again.");
   }
 }
 
