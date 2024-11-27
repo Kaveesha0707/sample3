@@ -1,76 +1,44 @@
-require("dotenv").config();
-
 const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const cors = require("cors");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI;
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+// Mock data for keywords
+let keywords = [
+  { id: "1", text: "Example Keyword", alertCount: 0 },
+];
+
+// GET /api/keywords
+app.get("/api/keywords", (req, res) => {
+  res.status(200).json(keywords);
 });
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => console.log("Connected to MongoDB"));
-
-
-const keywordSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  alertCount: { type: Number, default: 0 },
-});
-
-const Keyword = mongoose.model("Keyword", keywordSchema);
-
-app.get("/keywords", async (req, res) => {
-  try {
-    const keywords = await Keyword.find();
-    res.json(keywords);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-app.post("/keywords", async (req, res) => {
+// POST /api/keywords
+app.post("/api/keywords", (req, res) => {
   const { text } = req.body;
-
   if (!text) {
-    return res.status(400).send("Keyword text is required.");
+    return res.status(400).json({ error: "Keyword text is required" });
   }
-
-  try {
-    const existingKeyword = await Keyword.findOne({ text });
-    if (existingKeyword) {
-      return res.status(400).send("Keyword already exists.");
-    }
-
-    const newKeyword = new Keyword({ text });
-    await newKeyword.save();
-    res.status(201).json(newKeyword);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+  const newKeyword = { id: Date.now().toString(), text, alertCount: 0 };
+  keywords.push(newKeyword);
+  res.status(201).json(newKeyword);
 });
 
-app.delete("/keywords/:id", async (req, res) => {
+// DELETE /api/keywords/:id
+app.delete("/api/keywords/:id", (req, res) => {
   const { id } = req.params;
-
-  try {
-    await Keyword.findByIdAndDelete(id);
-    res.status(204).send();
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+  keywords = keywords.filter((keyword) => keyword.id !== id);
+  res.status(200).json({ message: "Keyword deleted successfully" });
 });
 
-// Start Server
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
+
 
