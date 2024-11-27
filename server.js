@@ -4,15 +4,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
 const app = express();
-const PORT = process.env.PORT || 3000; // Use the port assigned by Vercel
+const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
-// MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
@@ -23,7 +20,7 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 db.once("open", () => console.log("Connected to MongoDB"));
 
-// Define Schema and Model
+
 const keywordSchema = new mongoose.Schema({
   text: { type: String, required: true },
   alertCount: { type: Number, default: 0 },
@@ -31,7 +28,6 @@ const keywordSchema = new mongoose.Schema({
 
 const Keyword = mongoose.model("Keyword", keywordSchema);
 
-// Routes
 app.get("/keywords", async (req, res) => {
   try {
     const keywords = await Keyword.find();
