@@ -1,4 +1,4 @@
-const API_URL = "https://sample3-kaveesha0708.vercel.app/"; // Updated API base URL
+const API_URL = "https://sample3-kaveesha0709.vercel.app/api/keywords"; // Correct API base URL
 
 const keywordForm = document.getElementById("keywordForm");
 const keywordInput = document.getElementById("keywordInput");
@@ -14,11 +14,11 @@ themeToggle.addEventListener("click", () => {
 // Fetch and display keywords
 async function fetchKeywords() {
   try {
-    const response = await fetch(API_URL);
-    if (!response.ok) throw new Error("Failed to fetch keywords");
-    const keywords = await response.json();
+    const response = await fetch(API_URL); // Use correct endpoint
+    if (!response.ok) throw new Error(`Failed to fetch keywords: ${response.statusText}`);
+    const keywords = await response.json(); // Parse response as JSON
 
-    keywordList.innerHTML = "";
+    keywordList.innerHTML = ""; // Clear the list before appending
     keywords.forEach((keyword) => {
       const li = document.createElement("li");
       li.innerHTML = `${keyword.text}&nbsp;&nbsp;&nbsp;&nbsp;${keyword.alertCount}`;
@@ -26,7 +26,7 @@ async function fetchKeywords() {
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "DELETE";
       deleteButton.classList.add("remove-btn");
-      deleteButton.onclick = () => deleteKeyword(keyword._id);
+      deleteButton.onclick = () => deleteKeyword(keyword._id); // Pass keyword ID to delete
 
       li.appendChild(deleteButton);
       keywordList.appendChild(li);
@@ -53,12 +53,12 @@ async function addKeyword(event) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text }), // Send the keyword text
     });
 
     if (response.status === 201) {
-      keywordInput.value = "";
-      fetchKeywords();
+      keywordInput.value = ""; // Clear the input field
+      fetchKeywords(); // Refresh the list
     } else {
       const error = await response.text();
       alert(`Error: ${error}`);
@@ -67,16 +67,16 @@ async function addKeyword(event) {
     console.error("Error adding keyword:", err);
     alert("Failed to add keyword. Please try again.");
   } finally {
-    submitButton.disabled = false;
+    submitButton.disabled = false; // Re-enable the submit button
   }
 }
 
 // Delete a keyword
 async function deleteKeyword(id) {
   try {
-    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    if (!response.ok) throw new Error("Failed to delete keyword");
-    fetchKeywords();
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" }); // Use the correct DELETE endpoint
+    if (!response.ok) throw new Error(`Failed to delete keyword: ${response.statusText}`);
+    fetchKeywords(); // Refresh the list
   } catch (err) {
     console.error("Error deleting keyword:", err);
     alert("Failed to delete keyword. Please try again.");
